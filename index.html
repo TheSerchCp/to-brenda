@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V2 · Fusión Total</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,500;1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0b0820;
+    --purple:#a855f7;
+    --pink:#f472b6;
+    --gold:#fcd34d;
+    --paper:#f6f1e7;
+    --ink:#1a1420;
+    --red:#ff3b30;
+    --text:#f5f0ff;
+    --muted:#c4b5e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:.2rem}
+  html,body{overflow-x:hidden}
+  body{background:var(--night);color:var(--text);font-family:"Inter",system-ui,sans-serif;min-height:100vh;padding-bottom:40px}
+
+  /* Fondo animado: aurora + estrellas */
+  .aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5}
+  .aurora span{position:absolute;width:55vmax;height:55vmax;border-radius:50%;mix-blend-mode:screen;animation:drift 20s ease-in-out infinite alternate}
+  .aurora span:nth-child(1){background:var(--purple);top:0;left:-10%}
+  .aurora span:nth-child(2){background:var(--pink);bottom:0;right:-15%;animation-duration:26s;animation-delay:-6s}
+  .aurora span:nth-child(3){background:#3b82f6;top:30%;left:30%;animation-duration:32s;animation-delay:-12s;opacity:.45}
+  @keyframes drift{to{transform:translate(12vw,8vh) scale(1.15)}}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+  .wrap{position:relative;z-index:1}
+
+  /* Intro sorpresa */
+  #intro{position:fixed;inset:0;z-index:30;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;transition:opacity .9s, visibility .9s}
+  #intro.hide{opacity:0;visibility:hidden}
+  #galaxy{position:absolute;inset:0;width:100%;height:100%;padding:0;z-index:0;display:block}
+  #intro > *:not(#galaxy){position:relative;z-index:1}
+  #intro h1,#intro p{text-shadow:0 2px 14px rgba(0,0,0,.7)}
+  #intro .gift{font-size:3.6rem;animation:bob 2.2s ease-in-out infinite}
+  #intro h1{font-family:"Playfair Display",serif;font-size:clamp(1.8rem,7vw,2.6rem)}
+  #intro p{color:var(--muted)}
+  @keyframes bob{50%{transform:translateY(-10px) rotate(4deg)}}
+  .cta{background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:0;border-radius:999px;padding:14px 30px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 10px 30px rgba(168,85,247,.45);transition:transform .2s}
+  .cta:hover{transform:scale(1.05)}
+
+  /* Portada revista con parallax */
+  .cover{position:relative;height:100vh;height:100dvh;min-height:620px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+  .cover .photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .cover-frame{width:min(78vw,380px);aspect-ratio:1/1;border-radius:18px;overflow:hidden;box-shadow:0 0 0 2px rgba(252,211,77,.7),0 30px 80px rgba(168,85,247,.5);transform:rotate(-2deg)}
+  .cover-frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,8,32,.75),rgba(11,8,32,0) 30%,rgba(11,8,32,0) 45%,var(--night) 100%)}
+  .mast{position:absolute;top:18px;left:0;right:0;z-index:2;text-align:center;font-family:"Bebas Neue",sans-serif;font-size:clamp(3rem,15vw,8rem);line-height:.85;color:var(--gold);text-shadow:0 0 30px rgba(252,211,77,.35)}
+  .issue{position:absolute;top:calc(clamp(3rem,15vw,8rem)*.85 + 34px);left:16px;right:16px;z-index:2;display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:8px}
+  .lines{position:relative;z-index:2;padding:0 16px 56px;max-width:660px}
+  .tag{display:inline-block;background:linear-gradient(90deg,var(--purple),var(--pink));font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;margin-bottom:12px;border-radius:999px}
+  .lines h1{font-family:"Playfair Display",serif;font-style:italic;font-size:clamp(2.2rem,9vw,4rem);line-height:1.05;margin-bottom:10px}
+  .lines p{color:var(--muted);max-width:36ch;line-height:1.6}
+
+  /* Álbum polaroid con parallax y hover */
+  .album-sec{padding:90px 16px 40px;max-width:960px;margin:0 auto}
+  .kicker{color:var(--pink);font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:.75rem;margin-bottom:10px}
+  h2{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:clamp(3rem,12vw,5.5rem);line-height:.95;margin-bottom:10px}
+  .lead{color:var(--muted);margin-bottom:34px;max-width:50ch;line-height:1.6}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:30px 18px}
+  .px{will-change:transform}
+  .polaroid{background:#fff;color:#2a1d3d;padding:10px 10px 16px;border-radius:3px;box-shadow:0 14px 30px rgba(0,0,0,.45);transition:transform .25s ease-out, box-shadow .3s;cursor:pointer}
+  .polaroid:nth-child(odd){transform:rotate(-2deg)}
+  .polaroid:nth-child(even){transform:rotate(2deg)}
+  .polaroid:hover{box-shadow:0 26px 50px rgba(168,85,247,.5)}
+  .polaroid .frame{overflow:hidden;aspect-ratio:4/5}
+  .polaroid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease}
+  .polaroid:hover img{transform:scale(1.08)}
+  .polaroid span{display:block;font-family:"Caveat",cursive;font-size:1.45rem;text-align:center;margin-top:6px}
+  .polaroid.wide,.px.wide{grid-column:1/-1}
+  .gallery-box{display:grid;grid-template-columns:1fr 1fr;gap:28px 18px;max-width:760px;margin:0 auto;padding:28px 22px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+  .gallery-box .polaroid{margin:0}
+  .car-cap{text-align:center;font-family:"Caveat",cursive;font-size:1.6rem;line-height:1.2;color:var(--gold);max-width:640px;margin:18px auto 0}
+  .polaroid.wide .frame{aspect-ratio:16/9}
+  .compare{position:relative;width:100%;height:100%;overflow:hidden;cursor:ew-resize;user-select:none;touch-action:pan-y}
+  .compare img{position:absolute;inset:0;width:100%;height:100%;padding:0;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
+  .cmp-before{clip-path:inset(0 10% 0 0)}
+  .cmp-line{position:absolute;top:0;bottom:0;left:90%;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 6px rgba(0,0,0,.45);z-index:2;pointer-events:none}
+  .lens-area{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;cursor:pointer}
+  .lens-area img{position:absolute;inset:0;width:100%;height:100%;padding:0;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+  .lens{position:absolute;left:17.9%;top:23.1%;width:17%;aspect-ratio:1/1;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 12px 32px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.2);cursor:grab;z-index:2}
+  .lens-inner{position:absolute;inset:0;border-radius:50%;overflow:hidden;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55),inset 0 0 22px rgba(255,255,255,.45),inset 0 -14px 28px rgba(0,0,0,.12)}
+  .lens-inner::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.22),rgba(255,255,255,0) 50%),linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 60%,rgba(255,255,255,.08));pointer-events:none}
+  .lens img{position:absolute;top:0;left:0;max-width:none;padding:0;object-fit:cover;display:block;filter:blur(16px) saturate(135%) brightness(1.03);-webkit-filter:blur(16px) saturate(135%) brightness(1.03);pointer-events:none;transform:none}
+  .polaroid:hover .lens-area img,.polaroid:hover .lens img{transform:none}
+  .cmp-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;padding:0;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+  .cmp-handle svg{width:22px;height:22px;display:block}
+  .cmp-head{position:absolute;top:0;left:0;right:0;z-index:3;padding:12px 14px 30px;text-align:center;font-family:"Caveat",cursive;font-size:1.25rem;line-height:1.1;color:#fff;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
+
+  /* Reportaje sobre papel */
+  .paper{background:var(--paper);color:var(--ink);margin:80px 0;padding:70px 20px;position:relative;overflow:hidden}
+  .paper::before{content:"";position:absolute;inset:0;opacity:.06;background-image:radial-gradient(#000 1px,transparent 1px);background-size:4px 4px}
+  .paper .box{position:relative;max-width:820px;margin:0 auto}
+  .paper .kicker{color:var(--red)}
+  .paper h2{color:var(--ink)}
+  .paper p{line-height:1.8;color:#3a3340;margin-bottom:14px;font-size:1.05rem}
+  .dropcap::first-letter{font-family:"Playfair Display",serif;font-size:4.4rem;float:left;line-height:.8;padding:6px 10px 0 0;color:var(--red)}
+  .pull{border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);padding:20px 0;margin:28px 0;font-family:"Playfair Display",serif;font-style:italic;font-size:clamp(1.4rem,5vw,1.9rem);line-height:1.3;text-align:center}
+  .zoomrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:30px}
+  .zoom{overflow:hidden;aspect-ratio:3/4;border-radius:4px;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+  .zoom img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+  .zoom:hover img{transform:scale(1.12)}
+
+  /* Carta */
+  .letter{max-width:760px;margin:0 auto;padding:0 16px}
+  .letter .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:28px 22px;backdrop-filter:blur(8px);line-height:1.75;color:var(--muted)}
+  .letter h3{font-family:"Playfair Display",serif;color:var(--text);font-size:1.6rem;margin-bottom:10px}
+  .letter strong{color:var(--text)}
+
+  /* Lista de honor */
+  .honor{max-width:760px;margin:70px auto 0;padding:0 16px}
+  .list{list-style:none;display:grid;gap:14px;counter-reset:n;margin-top:18px}
+  .list li{counter-increment:n;display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:start;padding:14px 0;border-top:1px solid rgba(255,255,255,.12)}
+  .list li::before{content:counter(n,decimal-leading-zero);font-family:"Bebas Neue",sans-serif;font-size:2.6rem;line-height:1;color:var(--pink)}
+  .list strong{display:block;font-size:1.05rem;margin-bottom:3px}
+  .list p{color:var(--muted)}
+
+  .back{text-align:center;padding:100px 20px 40px}
+  .back .big{font-family:"Bebas Neue",sans-serif;font-size:clamp(3.5rem,15vw,7.5rem);line-height:.9;background:linear-gradient(90deg,var(--gold),var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:200% center}}
+  .back p{color:var(--muted);max-width:36ch;margin:16px auto 0;line-height:1.6}
+  .back .hand{font-family:"Caveat",cursive;font-size:1.9rem;color:var(--gold);margin-top:22px}
+  footer{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;padding:24px 0 10px}
+
+  .confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:40;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  @media (min-width:720px){
+    .zoomrow{grid-template-columns:1fr 1fr}
+  }
+  @media (hover:none){ .polaroid:hover img,.zoom:hover img{transform:none} }
+  @media (prefers-reduced-motion:reduce){ .aurora span,.gift,.back .big{animation:none} }
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<div id="intro">
+  <canvas id="galaxy" aria-hidden="true"></canvas>
+  <div class="gift">🎁</div>
+  <p class="kicker">Tengo una sorpresa</p>
+  <h1>Para mi amix Brenda alias la loquilla</h1>
+  <p>Puchale al botón jaja.</p>
+  <button class="cta" id="open">Aquí</button>
+</div>
+
+<div class="wrap">
+  <section class="cover">
+    <div class="photo px" data-speed="0.3"><div class="cover-frame"><img src="fotos/Titulo.png" alt="Portada: mi mejor amiga"></div></div>
+    <div class="mast">La mejor amiga</div>
+    <div class="issue"><span>Edición especial</span><span>Felicidades</span></div>
+    <div class="lines">
+      <span class="tag">Exclusiva</span>
+      <h1>La mejor persona que pude haber conocido en la vida</h1>
+      <p>Un homenaje para la niña que sin pensar conocí en el 2013 y terminó siendo mi apoyo,consejara, lo mejor sin pensarlo.</p>
+    </div>
+  </section>
+
+  <section class="album-sec">
+    <p class="kicker">Buenos recuerdos</p>
+    <h2>Vivencias que por suerte estan en foto</h2>
+    <p class="lead">Recordando la epoca en que nos conocimos, y formamos esta amistad tan memorable.</p>
+    <div class="grid">
+      <div class="px" data-speed="-0.04"><figure class="polaroid"><div class="frame"><div class="compare" data-compare>
+        <img src="fotos/Album0_AI.jpg" alt="Nuestra foto de uniforme, versión mejorada" draggable="false">
+        <img class="cmp-before" src="fotos/Album0.jpg" alt="Nuestra foto de uniforme, versión original" draggable="false">
+        <div class="cmp-head">Un poco de IA para mejorar la foto, desliza la barra de en medio</div>
+        <div class="cmp-line"><div class="cmp-handle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6" fill="none" stroke="#222" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+      </div></div><span>Jaja si mal no recuerdo fue nuestra primera foto amix por el lejano 2013 o 14</span></figure></div>
+      <div class="px" data-speed="0.05"><figure class="polaroid"><div class="frame"><img src="fotos/Album1.jpg" alt="Recuerdo 2"></div><span>Brenda: Que va querer jefe. Sergio: Este , pa llevar por favor</span></figure></div>
+      <div class="px wide" data-speed="-0.03"><figure class="polaroid wide"><div class="frame"><img src="fotos/Final.jpg" alt="Gatito, te quiero"></div><span>Recordando el surgimiento de gatito, pero aqui fue ya al final de 3er año de CQ ♡</span></figure></div>
+      <div class="px" data-speed="0.04"><figure class="polaroid"><div class="frame"><img src="fotos/Album3.jpg" alt="Recuerdo 4"></div><span>Noma que bellos, hermosos, guapos estabamos</span></figure></div>
+      <div class="px" data-speed="-0.05"><figure class="polaroid"><div class="frame"><img src="fotos/Almbum6.jpg" alt="Recuerdo 5"></div><span>Desde siempre llevandonos bien amix</span></figure></div>
+      <div class="px" data-speed="0.03"><figure class="polaroid"><div class="frame"><img src="fotos/Almbum7.jpg" alt="Recuerdo 6"></div><span>Brendita y Sergito , todos pechochos jaja</span></figure></div>
+      <div class="px" data-speed="0.02"><figure class="polaroid"><div class="frame"><div class="compare" data-compare>
+        <img src="fotos/New_Album_0_AI.png" alt="Recuerdo, versión mejorada" draggable="false">
+        <img class="cmp-before" src="fotos/New_Album_0.jpg" alt="Recuerdo, versión original" draggable="false">
+        <div class="cmp-head">Un poco mas de IA para mejorar la foto, desliza la barra de en medio</div>
+        <div class="cmp-line"><div class="cmp-handle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6" fill="none" stroke="#222" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+      </div></div><span>Nuestra segunda foto probablemente 1 año despues de la primera jaja</span></figure></div>
+      <div class="px wide" data-speed="-0.02"><figure class="polaroid wide"><div class="frame"><div class="lens-area" data-lens>
+        <img src="fotos/New_Album1.jpg" alt="Recuerdo 7">
+        <div class="cmp-head">Desliza el círculo, para saber quién es, que de cajón ya lo sabes amix jaja</div>
+        <div class="lens" aria-label="Zona de desenfoque, arrástrala"><div class="lens-inner"><img src="fotos/New_Album1.jpg" alt="" aria-hidden="true"></div></div>
+      </div></div><span>Este día no lo recordaba, el ultimo día, despues de la graduación, pero nomas recuerdo que nomas, no me pasaba este amigo , que esta tapado, que comeinza con Y</span></figure></div>
+      <div class="px wide" data-speed="0.02"><div class="gallery-box">
+        <figure class="polaroid"><div class="frame"><img src="fotos/Recordando_1.jpg" alt="Recordando 1"></div></figure>
+        <figure class="polaroid"><div class="frame"><img src="fotos/Recordando_2.jpg" alt="Recordando 2"></div></figure>
+        <figure class="polaroid"><div class="frame"><img src="fotos/Recordando_3.jpg" alt="Recordando 3"></div></figure>
+        <figure class="polaroid"><div class="frame"><img src="fotos/Recordando_4.JPG" alt="Recordando 4"></div></figure>
+      </div><p class="car-cap">No recordaba que existian estas fotos jaja, menos la ultima, supuestamente bien guapa jaja. No has cambiado tanto amix, en cambio uno si jaja que triste </p></div>
+    </div>
+  </section>
+
+  <section class="paper">
+    <div class="box">
+      <p class="kicker">AQUÍ MI REPORTAJE JOAQUIN</p>
+      <h2>Tantos años de amistad</h2>
+      <p class="dropcap">Te agradezco por esta gran amistad que hemos formado a lo largo de todos estos años. Ha sido la única y verdadera amistad que ha perdurado intacta en todo este tiempo; siempre tenemos temas de qué hablar, siempre estamos para apoyarnos, darnos ánimos y encontrar maneras de afrontar y sobrellevar tantas situaciones.</p>
+      <p>Eres la mejor persona que se pueda conocer, has sido mi apoyo en todo este tiempo, quien me anima, me aconseja, quien me ayuda a pasar mis tristezas. En serio, gracias. No sé qué hubiera hecho sin tu amistad.</p>
+      <div class="pull">“La persona más valiosa, que puedes encontrar en la vida”</div>
+      <div class="zoomrow">
+        <div class="zoom"><img src="fotos/Reportaje_2.jpg" alt="Selfie"></div>
+        <div class="zoom"><img src="fotos/Reportaje_1.jpg" alt="Abrazo en la multitud"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="letter">
+    <div class="card">
+      <h3>Mi carta para ti</h3>
+      <p>Hay personas que he conocido desde la preparatoria, con las que no coincidí realmente, y con ninguna de ellas, a la fecha, sigo teniendo relación. En ese tiempo siempre contaba sobre ti cuando preguntaban por algún tema sentimental. Aun habiendo tenido amigas, o mejor dicho compañeras, con nadie tuve confianza. Y aunque casi no hablábamos ni nos veíamos, las pocas veces que sucedía, siempre se sentía especial volver a verte, como aquella vez que te acompañé a tu casa cuando andabas en la prepa, cuando aún vivías por la iglesia, y hasta decías que ya te tronaban las rodillas y llamabas a la lluvia jaja.</p>
+      <p style="margin-top:12px">Pero hay tantas cosas que pudiera escribir, aunque más que nada estoy agradecido por tener a una gran y excelente persona como amiga. Te quiero mucho, Brenda.</p>
+      <p style="margin-top:12px">Que cada meta que tengas pendiente la logres paso a paso. Sé que puedes sentirte tan nostálgica, desorientada, incluso con tristeza, y perder el rumbo por ciertos momentos, pero eso no evitará que lo logres.</p>
+      <p style="margin-top:12px">Quiero verte realizando lo que anhelas, que tengas el mejor éxito en todo, que seas plenamente feliz con todo lo que vayas logrando, que nadie ni nada te detenga, y, si está en mis manos, apoyarte en todo.</p>
+      <p style="margin-top:12px">Gracias por siempre estar presente, en serio. No sé qué haría sin tenerte como mi mejor amiga.</p>
+    </div>
+  </section>
+
+  <section class="honor">
+    <p class="kicker">Lista de honor</p>
+    <h2>Por qué eres única</h2>
+    <ol class="list">
+      <li><div><strong>Siempre estás</strong><p>Cuando recurren a que escuches y obtener un buen consejo.</p></div></li>
+      <li><div><strong>Tu persona</strong><p>Eres fantástica, siempre sabes cómo apoyar.</p></div></li>
+      <li><div><strong>Eres mi lugar seguro</strong><p>Sé que puede ser yo, hablar cualquier tema, sin filtro.</p></div></li>
+      <li><div><strong>Eres mi admiración</strong><p>Admiro cómo siempre sales adelante, y te esfuerzas por lograr todo.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="back">
+    <div class="big">¡Feliz día,<br>mi querida Brenda!</div>
+    <p>Que este año te traiga todo lo que sueñas. Te quiero muchísimo.</p>
+    <p class="hand">Con cariño, el menso de tu amigo ete sech ♡</p>
+    <p class="hand" style="margin-top:44px">Por cierto</p>
+    <div class="letter" style="margin-top:14px;padding:0">
+      <div class="card" style="text-align:left">
+        <h3>Cortarme el pelo por una amiga tuya jaja</h3>
+        <p style="max-width:none;margin:0;text-align:left">No recordaba que me corté mi cabello, cuando me comentaste que me presentarías a tu amiga “Pao”, nunca pudo concretarse esa salida para conocerla y platicar, y tal vez, tal vez comenzar una nueva historia desde 0, enmendando tantos errores, por menso, como tú ya sabes. Espero, si aún sigue en pie, poder concretarlo, amix.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Edición especial · Gracias por ser tú, asi de loquilla jaja</footer>
+</div>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Estrellas animadas
+  const cv = document.getElementById('stars'), ctx = cv.getContext('2d');
+  let stars = [];
+  function resize(){
+    cv.width = innerWidth; cv.height = innerHeight;
+    stars = Array.from({length: Math.round(innerWidth*innerHeight/9000)}, () => ({x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.6+.3, s:Math.random()*.4+.05, t:Math.random()*6}));
+  }
+  function draw(now){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for (const s of stars){
+      ctx.fillStyle = `rgba(255,255,255,${.35 + .35*Math.sin(now/1000*1.5 + s.t)})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+      if (!reduce){ s.y += s.s; if (s.y > cv.height) s.y = 0; }
+    }
+    requestAnimationFrame(draw);
+  }
+  resize(); requestAnimationFrame(draw); addEventListener('resize', resize);
+
+  // Parallax: cada capa con su velocidad
+  const layers = [...document.querySelectorAll('[data-speed]')];
+  let ticking = false;
+  function parallax(){
+    if (!reduce) layers.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const offset = (innerHeight/2 - (r.top + r.height/2)) * parseFloat(el.dataset.speed);
+      el.style.transform = `translate3d(0, ${offset}px, 0)`;
+    });
+    ticking = false;
+  }
+  addEventListener('scroll', () => { if (!ticking){ ticking = true; requestAnimationFrame(parallax); } }, {passive:true});
+  addEventListener('resize', parallax);
+  parallax();
+
+  // Comparador antes / después en la primera polaroid
+  document.querySelectorAll('[data-compare]').forEach(box => {
+    const before = box.querySelector('.cmp-before');
+    const line = box.querySelector('.cmp-line');
+    let drag = false;
+    const set = v => {
+      const p = Math.max(0, Math.min(100, v));
+      before.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+      line.style.left = p + '%';
+    };
+    const fromX = x => { const r = box.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
+    set(parseFloat(box.dataset.start ?? '90'));   // inicio: por defecto 90 % (solo 10 % con IA)
+    box.addEventListener('pointerdown', e => { drag = true; box.setPointerCapture(e.pointerId); fromX(e.clientX); });
+    box.addEventListener('pointermove', e => { if (drag) fromX(e.clientX); });
+    box.addEventListener('pointerup', () => { drag = false; });
+    box.addEventListener('pointercancel', () => { drag = false; });
+    box.addEventListener('dragstart', e => e.preventDefault());
+  });
+
+  // Zona circular de desenfoque: se arrastra y el desenfoque se mantiene en su lugar
+  document.querySelectorAll('[data-lens]').forEach(area => {
+    const lens = area.querySelector('.lens');
+    const blurImg = lens.querySelector('img');
+    let drag = false, offX = 0, offY = 0;
+    // Alinea la imagen desenfocada con la foto de fondo
+    const sync = () => {
+      const r = area.getBoundingClientRect();
+      const lr = lens.getBoundingClientRect();
+      blurImg.style.width = r.width + 'px';
+      blurImg.style.height = r.height + 'px';
+      blurImg.style.left = (r.left - lr.left - lens.clientLeft) + 'px';
+      blurImg.style.top = (r.top - lr.top - lens.clientTop) + 'px';
+    };
+    const moveTo = (cx, cy) => {
+      const r = area.getBoundingClientRect();
+      const half = lens.getBoundingClientRect().width / 2;
+      const x = Math.max(half, Math.min(r.width - half, cx - r.left));
+      const y = Math.max(half, Math.min(r.height - half, cy - r.top));
+      lens.style.left = ((x - half) / r.width * 100) + '%';
+      lens.style.top = ((y - half) / r.height * 100) + '%';
+      sync();
+    };
+    area.addEventListener('pointerdown', e => {
+      drag = true;
+      area.setPointerCapture(e.pointerId);
+      const lr = lens.getBoundingClientRect();
+      const lcx = lr.left + lr.width / 2, lcy = lr.top + lr.height / 2;
+      if (Math.hypot(e.clientX - lcx, e.clientY - lcy) <= lr.width / 2) { offX = e.clientX - lcx; offY = e.clientY - lcy; }
+      else { offX = 0; offY = 0; moveTo(e.clientX, e.clientY); }
+    });
+    area.addEventListener('pointermove', e => { if (drag) moveTo(e.clientX - offX, e.clientY - offY); });
+    area.addEventListener('pointerup', () => { drag = false; });
+    area.addEventListener('pointercancel', () => { drag = false; });
+    area.addEventListener('dragstart', e => e.preventDefault());
+    sync();
+    addEventListener('resize', sync);
+  });
+
+  // Hover 3D en las polaroids (solo mouse)
+  document.querySelectorAll('.polaroid').forEach(el => {
+    el.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5;
+      const y = (e.clientY - r.top) / r.height - .5;
+      el.style.transform = `perspective(900px) rotateX(${-y*14}deg) rotateY(${x*14}deg) scale(1.03)`;
+    });
+    el.addEventListener('pointerleave', () => el.style.transform = '');
+  });
+
+  // ===== Galaxia de fondo del inicio =====
+  // Perspectiva diagonal como anim-galaxy: disco inclinado (rotateY 45° y rotateX 45°),
+  // giro sobre el eje de visión (rotateZ) y banda de la Vía Láctea en la misma diagonal.
+  // Población y diseño como Animated-Galaxy: 3 ramas, radio uniforme, dispersión con potencia 3,
+  // color #ff6030 (centro) → #1b3984 (borde), tamaño atenuado por profundidad, giro diferencial.
+  const galCanvas = document.getElementById('galaxy');
+  const gc = galCanvas.getContext('2d');
+  const GAL = { count: 20000, branches: 3, spin: 1, randomness: 0.5, randomnessPower: 3, radius: 5,
+                thickness: 0.45, inside: [255, 96, 48], outside: [27, 57, 132] };
+  const CAM = 9;                                      // distancia de la cámara (unidades del modelo)
+  const TILT_Y = 0, TILT_X = 0.5;                     // disco visto de canto: forma la banda de la Vía Láctea
+  const PAL_N = 16, ALPHAS = [0.55, 0.8, 1];
+  const PAL = Array.from({length: PAL_N}, (_, k) => {
+    const t = k / (PAL_N - 1);
+    const rgb = GAL.inside.map((c, i) => Math.round(c + (GAL.outside[i] - c) * t));
+    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+  });
+  let gW = 0, gH = 0, gCx = 0, gCy = 0, gF = 0, gScreenR = 0, gDiag = 0;
+  let gT = 0, gLast = 0, gRaf = 0, gRunning = true;
+  let gStars = [], gBuckets = [];
+
+  function buildGalaxy(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    gW = galCanvas.clientWidth; gH = galCanvas.clientHeight;
+    galCanvas.width = Math.round(gW * dpr); galCanvas.height = Math.round(gH * dpr);
+    gc.setTransform(dpr, 0, 0, dpr, 0, 0);
+    gCx = gW * 0.5; gCy = gH * 0.5;
+    gScreenR = Math.hypot(gW, gH) * 0.5;            // la banda cruza la pantalla en diagonal
+    gF = gScreenR * CAM / GAL.radius;               // escala de perspectiva
+    gDiag = Math.atan2(gH, gW);                     // diagonal de la pantalla
+
+    gStars = Array.from({length: Math.min(Math.round(gW * gH / 1400), 500)}, () => ({
+      x: Math.random() * gW, y: Math.random() * gH,
+      r: Math.random() * 1.1 + 0.2, p: Math.random() * 6, s: 0.5 + Math.random() * 2
+    }));
+
+    // Población: 20,000 partículas agrupadas por color y opacidad para dibujar en lotes
+    const disp = () => Math.pow(Math.random(), GAL.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * GAL.randomness;
+    gBuckets = Array.from({length: PAL_N * ALPHAS.length}, () => []);
+    for (let i = 0; i < GAL.count; i++){
+      const radius = Math.random() * GAL.radius;
+      const a0 = ((i % GAL.branches) / GAL.branches) * Math.PI * 2;
+      const t = radius / GAL.radius;
+      const bulge = (1 - t) * (Math.random() - 0.5) * GAL.thickness * 0.35; // abultamiento central
+      const p = {
+        r: radius, a0,
+        rx: disp() * radius,
+        ry: disp() * radius * GAL.thickness + bulge,   // grosor visible del disco
+        rz: disp() * radius,
+        sc: 0.2 + Math.random() * 0.8
+      };
+      const ci = Math.round(t * (PAL_N - 1));
+      const ai = Math.floor(Math.random() * ALPHAS.length);
+      gBuckets[ci * ALPHAS.length + ai].push(p);
+    }
+  }
+
+  function drawGalaxy(now){
+    gc.clearRect(0, 0, gW, gH);
+
+    // Estrellas de fondo que titilan
+    for (const s of gStars){
+      gc.fillStyle = `rgba(255,255,255,${0.25 + 0.6 * Math.abs(Math.sin(now / 1000 * s.s + s.p))})`;
+      gc.fillRect(s.x, s.y, s.r, s.r);
+    }
+
+    // Banda de la Vía Láctea en la misma diagonal (como anim-galaxy)
+    gc.save();
+    gc.translate(gW / 2, gH / 2); gc.rotate(gDiag);
+    const band = gc.createLinearGradient(0, -gH * 0.35, 0, gH * 0.35);
+    band.addColorStop(0, 'rgba(255,255,255,0)');
+    band.addColorStop(0.5, 'rgba(196,181,253,0.12)');
+    band.addColorStop(1, 'rgba(255,255,255,0)');
+    gc.fillStyle = band;
+    gc.fillRect(-gW, -gH * 0.35, gW * 2, gH * 0.7);
+    gc.restore();
+
+    // Núcleo luminoso
+    const core = gc.createRadialGradient(gCx, gCy, 0, gCx, gCy, gScreenR * 0.2);
+    core.addColorStop(0, 'rgba(255,220,180,0.45)');
+    core.addColorStop(0.4, 'rgba(255,96,48,0.18)');
+    core.addColorStop(1, 'rgba(27,57,132,0)');
+    gc.fillStyle = core;
+    gc.fillRect(0, 0, gW, gH);
+
+    // Galaxia en perspectiva
+    const roll = -gDiag;                          // banda de arriba-izquierda a abajo-derecha, como anim-galaxy
+    const cr = Math.cos(roll), sr = Math.sin(roll);
+    const cyT = Math.cos(TILT_Y), syT = Math.sin(TILT_Y);
+    const cxT = Math.cos(TILT_X), sxT = Math.sin(TILT_X);
+    gc.globalCompositeOperation = 'lighter';
+    for (let b = 0; b < gBuckets.length; b++){
+      const list = gBuckets[b];
+      if (!list.length) continue;
+      gc.globalAlpha = ALPHAS[b % ALPHAS.length];
+      gc.fillStyle = PAL[Math.floor(b / ALPHAS.length)];
+      gc.beginPath();
+      for (const p of list){
+        // Giro diferencial: el centro gira más rápido (como Animated-Galaxy)
+        const ang = p.a0 + gT * 0.2 * GAL.spin / Math.max(p.r, 0.35);
+        const x = Math.cos(ang) * p.r + p.rx;
+        const y = p.ry;
+        const z = Math.sin(ang) * p.r + p.rz;
+        // rotateY(45°)
+        const x1 = x * cyT + z * syT, z1 = -x * syT + z * cyT;
+        // rotateX(45°)
+        const y2 = y * cxT - z1 * sxT, z2 = y * sxT + z1 * cxT;
+        // giro sobre el eje de visión
+        const x3 = x1 * cr - y2 * sr, y3 = x1 * sr + y2 * cr;
+        const depth = CAM - z2;
+        if (depth <= 0.5) continue;
+        const s = gF / depth;                       // proyección en perspectiva
+        const size = Math.max(0.6, 2.2 * p.sc * (CAM / depth));
+        gc.rect(gCx + x3 * s, gCy - y3 * s, size, size);
+      }
+      gc.fill();
+    }
+    gc.globalAlpha = 1;
+    gc.globalCompositeOperation = 'source-over';
+  }
+
+  function galaxyFrame(now){
+    if (!gRunning) return;
+    gT += gLast ? Math.min((now - gLast) / 1000, 0.05) : 0;
+    gLast = now;
+    drawGalaxy(now);
+    gRaf = requestAnimationFrame(galaxyFrame);
+  }
+
+  buildGalaxy();
+  if (reduce) { drawGalaxy(0); } else { gRaf = requestAnimationFrame(galaxyFrame); }
+  let gResizeT;
+  addEventListener('resize', () => {
+    clearTimeout(gResizeT);
+    gResizeT = setTimeout(() => { buildGalaxy(); if (reduce) drawGalaxy(0); }, 200);
+  });
+
+  // Intro + confeti
+  document.getElementById('open').addEventListener('click', () => {
+    document.getElementById('intro').classList.add('hide');
+    gRunning = false; cancelAnimationFrame(gRaf);
+    if (reduce) return;
+    for (let i = 0; i < 80; i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.background = ['#a855f7','#f472b6','#fcd34d','#60a5fa'][i%4];
+      c.style.animationDuration = (2 + Math.random()*2) + 's';
+      c.style.animationDelay = (Math.random()*.5) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4500);
+    }
+  });
+</script>
+</body>
+</html>
