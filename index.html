@@ -122,6 +122,31 @@
   .list strong{display:block;font-size:1.05rem;margin-bottom:3px}
   .list p{color:var(--muted)}
 
+  /* Reproductor de música */
+  .music{max-width:760px;margin:0 auto;padding:0 16px 20px}
+  .playlist{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:24px 22px;backdrop-filter:blur(8px);color:var(--text)}
+  .player{position:fixed;right:16px;bottom:16px;z-index:20;width:min(400px,calc(100vw - 32px));background:rgba(20,12,40,.82);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:12px 14px;backdrop-filter:blur(10px);box-shadow:0 14px 40px rgba(0,0,0,.45);color:var(--text)}
+  .pl-row{display:flex;align-items:center;gap:10px}
+  .ctrls{display:flex;align-items:center;gap:6px;flex:none}
+  .btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;display:grid;place-items:center;padding:0}
+  .btn.play{width:42px;height:42px;border:none;background:linear-gradient(90deg,var(--pink),var(--purple))}
+  .marquee{flex:1;min-width:0;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 10px),transparent)}
+  .np-title{display:inline-block;font-family:"Playfair Display",serif;font-size:1rem;white-space:nowrap;padding-right:2em}
+  .np-title.scroll{animation:marq var(--dur,8s) ease-in-out infinite alternate}
+  @keyframes marq{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--shift))}}
+  .vol{display:flex;align-items:center;gap:4px;flex:none;color:var(--muted);font-size:.8rem}
+  .vol input{width:64px;accent-color:var(--pink)}
+  .seek{width:100%;margin-top:10px;accent-color:var(--pink)}
+  .tracks{list-style:none;margin-top:18px;border-top:1px solid rgba(255,255,255,.12)}
+  .tracks li{border-bottom:1px solid rgba(255,255,255,.1)}
+  .tracks button{width:100%;display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;background:none;border:0;padding:12px 4px;color:var(--muted);font:inherit;text-align:left;cursor:pointer}
+  .tracks button:hover{color:var(--text)}
+  .tracks .num{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:1;color:var(--pink)}
+  .tracks .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tracks .eq{color:var(--gold);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;opacity:0}
+  .tracks li.on button{color:var(--text)}
+  .tracks li.on .eq{opacity:1}
+
   .back{text-align:center;padding:100px 20px 40px}
   .back .big{font-family:"Bebas Neue",sans-serif;font-size:clamp(3.5rem,15vw,7.5rem);line-height:.9;background:linear-gradient(90deg,var(--gold),var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 6s linear infinite}
   @keyframes shine{to{background-position:200% center}}
@@ -230,7 +255,7 @@
     <p class="kicker">Lista de honor</p>
     <h2>Por qué eres única</h2>
     <ol class="list">
-      <li><div><strong>Siempre estás</strong><p>Cuando recurren a que escuches y obtener un buen consejo.</p></div></li>
+      <li><div><strong>Siempre estás</strong><p>Cuando recurro a tí a contarte como me siento y obtener un buen consejo.</p></div></li>
       <li><div><strong>Tu persona</strong><p>Eres fantástica, siempre sabes cómo apoyar.</p></div></li>
       <li><div><strong>Eres mi lugar seguro</strong><p>Sé que puede ser yo, hablar cualquier tema, sin filtro.</p></div></li>
       <li><div><strong>Eres mi admiración</strong><p>Admiro cómo siempre sales adelante, y te esfuerzas por lograr todo.</p></div></li>
@@ -245,10 +270,36 @@
     <div class="letter" style="margin-top:14px;padding:0">
       <div class="card" style="text-align:left">
         <h3>Cortarme el pelo por una amiga tuya jaja</h3>
-        <p style="max-width:none;margin:0;text-align:left">No recordaba que me corté mi cabello, cuando me comentaste que me presentarías a tu amiga “Pao”, nunca pudo concretarse esa salida para conocerla y platicar, y tal vez, tal vez comenzar una nueva historia desde 0, enmendando tantos errores, por menso, como tú ya sabes. Espero, si aún sigue en pie, poder concretarlo, amix.</p>
+        <p style="max-width:none;margin:0;text-align:left">No recordaba que me corté mi cabello, cuando me comentaste que me presentarías a tu amiga “Pao”, nunca pudo concretarse esa salida para conocerla y platicar, y tal vez, tal vez comenzar una nueva historia desde 0, enmendando tantos errores, por menso, como tú ya sabes.</p>
       </div>
     </div>
   </section>
+
+  <section class="music" aria-label="Música para ambientar">
+    <div class="playlist">
+      <p class="kicker">Música para ambientar</p>
+      <ol class="tracks" id="tracks"></ol>
+    </div>
+  </section>
+
+  <div class="player" id="floatPlayer" aria-label="Reproductor de música">
+    <div class="pl-row">
+      <div class="ctrls">
+        <button class="btn" type="button" id="prev" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 6h2v12H6zM9.5 12L18 6v12z"/></svg>
+        </button>
+        <button class="btn play" type="button" id="playBtn" aria-label="Reproducir">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="btn" type="button" id="next" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg>
+        </button>
+      </div>
+      <div class="marquee" id="marquee"><span class="np-title" id="npTitle">—</span></div>
+      <label class="vol">🔈 <input type="range" id="vol" min="0" max="1" step="0.01" value="0.18" aria-label="Volumen"></label>
+    </div>
+    <input class="seek" type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-label="Progreso de la canción">
+  </div>
 
   <footer>Edición especial · Gracias por ser tú, asi de loquilla jaja</footer>
 </div>
@@ -488,16 +539,26 @@
     gRaf = requestAnimationFrame(galaxyFrame);
   }
 
-  buildGalaxy();
-  if (reduce) { drawGalaxy(0); } else { gRaf = requestAnimationFrame(galaxyFrame); }
-  let gResizeT;
-  addEventListener('resize', () => {
-    clearTimeout(gResizeT);
-    gResizeT = setTimeout(() => { buildGalaxy(); if (reduce) drawGalaxy(0); }, 200);
-  });
+  // Si ya se presionó "Aquí" antes, no se vuelve a mostrar la intro
+  let opened = false;
+  try { opened = localStorage.getItem('isOpen') === 'true'; } catch (e) {}
+
+  if (opened) {
+    document.getElementById('intro').remove();
+    gRunning = false;
+  } else {
+    buildGalaxy();
+    if (reduce) { drawGalaxy(0); } else { gRaf = requestAnimationFrame(galaxyFrame); }
+    let gResizeT;
+    addEventListener('resize', () => {
+      clearTimeout(gResizeT);
+      gResizeT = setTimeout(() => { buildGalaxy(); if (reduce) drawGalaxy(0); }, 200);
+    });
+  }
 
   // Intro + confeti
   document.getElementById('open').addEventListener('click', () => {
+    try { localStorage.setItem('isOpen', 'true'); } catch (e) {}
     document.getElementById('intro').classList.add('hide');
     gRunning = false; cancelAnimationFrame(gRaf);
     if (reduce) return;
@@ -512,6 +573,92 @@
       setTimeout(() => c.remove(), 4500);
     }
   });
+</script>
+<script>
+  // Reproductor de música: volumen bajo, reproduce solo cuando se presiona play
+  (() => {
+    const TRACKS = [
+      { t: 'Dark Vacay', f: 'Dark Vacay.mp3' },
+      { t: "Don't Dream It's Over", f: "Don't Dream It's Over.mp3" },
+      { t: 'We Are Young · Fun. ft. Janelle Monáe', f: 'Fun. We Are Young ft. Janelle Monáe [OFFICIAL VIDEO].mp3' },
+      { t: 'Line Without a Hook', f: 'Line Without a Hook.mp3' },
+      { t: "Seven's Day", f: 'Seven’s Day.mp3' },
+      { t: 'Talk to Me · Cavetown', f: 'Talk to me – Cavetown〚Lyrics - Letra inglés español〛.mp3' }
+    ];
+    const ICON_PLAY = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>';
+    const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+
+    const audio = new Audio();
+    audio.preload = 'none';
+    const $ = id => document.getElementById(id);
+    const playBtn = $('playBtn'), prevBtn = $('prev'), nextBtn = $('next');
+    const seek = $('seek'), vol = $('vol'), list = $('tracks');
+    const npTitle = $('npTitle'), marquee = $('marquee');
+    let idx = 0, seeking = false;
+
+    audio.volume = parseFloat(vol.value);
+
+    TRACKS.forEach((tr, i) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerHTML = `<span class="num">${String(i + 1).padStart(2, '0')}</span><span class="name"></span><span class="eq">Suena</span>`;
+      btn.querySelector('.name').textContent = tr.t;
+      btn.addEventListener('click', () => { load(i); play(); });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+
+    // Si el título no cabe, se desplaza suavemente de lado a lado
+    function updateMarquee() {
+      npTitle.classList.remove('scroll');
+      npTitle.style.setProperty('--shift', '0px');
+      const over = npTitle.scrollWidth - marquee.clientWidth;
+      if (over > 0) {
+        npTitle.style.setProperty('--shift', -over + 'px');
+        npTitle.style.setProperty('--dur', Math.max(5, over / 22) + 's');
+        npTitle.classList.add('scroll');
+      }
+    }
+
+    function load(i) {
+      idx = (i + TRACKS.length) % TRACKS.length;
+      audio.src = 'music/' + encodeURIComponent(TRACKS[idx].f);
+      npTitle.textContent = TRACKS[idx].t;
+      [...list.children].forEach((li, j) => li.classList.toggle('on', j === idx));
+      seek.value = 0;
+      updateMarquee();
+    }
+
+    function play() {
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => setPlaying(false));
+    }
+
+    function setPlaying(on) {
+      playBtn.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+      playBtn.setAttribute('aria-label', on ? 'Pausar' : 'Reproducir');
+    }
+
+    playBtn.addEventListener('click', () => { if (audio.paused) play(); else audio.pause(); });
+    prevBtn.addEventListener('click', () => { load(idx - 1); play(); });
+    nextBtn.addEventListener('click', () => { load(idx + 1); play(); });
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => { load(idx + 1); play(); });
+    audio.addEventListener('timeupdate', () => {
+      if (!seeking && audio.duration) seek.value = audio.currentTime / audio.duration * 100;
+    });
+    seek.addEventListener('input', () => { seeking = true; });
+    seek.addEventListener('change', () => {
+      if (audio.duration) audio.currentTime = seek.value / 100 * audio.duration;
+      seeking = false;
+    });
+    vol.addEventListener('input', () => { audio.volume = parseFloat(vol.value); });
+
+    window.addEventListener('resize', updateMarquee);
+    load(0);
+  })();
 </script>
 </body>
 </html>
